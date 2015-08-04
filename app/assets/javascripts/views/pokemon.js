@@ -10,6 +10,7 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
     this.$pokeList.on("click", "li.poke-list-item", that.selectPokemonFromList.bind(that));
     this.$pokeDetail.on("click", "li.toy-list-item", that.selectToyFromList.bind(that));
     this.$newPoke.on("click", "button", that.submitPokemonForm.bind(that));
+    console.log(this.$el.find(".selectx"));
   },
 
   addPokemonToList: function (pokemon){
@@ -90,9 +91,24 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
   renderToyDetail: function (toy){
     var $div = $("<div class='detail'></div>");
     var $img = $("<img src="+toy.get("image_url")+">");
+    var $form = $("<form></form>");
+    //var $input = $("<input class='selectx' type='text' value='null'>");
+    var $select = $("<select class='selectx' data-pokemon-id=" + toy.get("pokemon_id") + " data-toy-id=" + toy.get("id") + " ></select>");
+    $form.append($select);
+    this.pokemon.each(function (pokemon){
+      var option = "<option value=" + pokemon.get("id");
+      if (pokemon.id === toy.get("pokemon_id")){
+        option += " selected";
+      }
+      option += ">" + pokemon.get("name") + "</option>";
+      $select.append($(option));
+    });
+
     $div.append($img);
+    $div.append($form);
     this.$toyDetail.empty();
     this.$toyDetail.append($div);
+    this.$el.find(".selectx").on('change', this.reassignToy.bind(this));
   },
 
   selectToyFromList: function (event){
@@ -104,6 +120,16 @@ Pokedex.Views.Pokemon = Backbone.View.extend({
     var pokemon = this.pokemon.get(pid);
     var toy = pokemon.toys().get(tid);
     this.renderToyDetail(toy);
+  },
+
+  reassignToy: function (event) {
+    console.log($(event.currentTarget));
+    var $dataPkmnId = $(event.currentTarget).data("pokemon-id");
+    console.log($dataPkmnId);
+    var $dataToyId = $(event.currentTarget).data("toy-id");
+    console.log($dataToyId);
+    var $newPokemonId = $(event.currentTarget).val();
+    console.log($newPokemonId);
   },
 
 });
